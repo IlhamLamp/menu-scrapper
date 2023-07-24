@@ -15,9 +15,38 @@ export class ScrapperService {
         });
 
         await page.evaluate(() => {
-            const menuList = []
-            
-            
+            // Get layout and count menu
+            const menuData = []
+            const layout = document.querySelector('#section--1 > div')
+            const menuCount = layout.childElementCount
+
+            // 
+            if(layout){
+                for(let i=1; i<=menuCount; i++) {
+                    const menu = layout.querySelector(`div:nth-child(${i})`)
+                    if (menu) {
+                        // Extract data from menu element and save it to the 'data' array
+                        const title = menu.querySelector('h3')?.textContent || '';
+                        const ingredients = menu.querySelector('p')?.textContent || '';
+                        const priceElements = menu.querySelectorAll('span');
+                        const price = priceElements[0]?.textContent || '';
+                        const promo = priceElements[1]?.textContent || '';
+                        const imageUrl = menu.querySelector('img')?.getAttribute('src') || '';
+                        
+                        // push
+                        menuData.push({
+                            id: i.toString(),
+                            title: title,
+                            ingredients: ingredients,
+                            price: price,
+                            promo: promo,
+                            img: imageUrl,
+                        })
+                    } else {
+                        console.log(`Menu (${i}) tidak ditemukan`)
+                    }
+                }
+            }
         })
 
         // return 'my scrapper service is working 🚀';
