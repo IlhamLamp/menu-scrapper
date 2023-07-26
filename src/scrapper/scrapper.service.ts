@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
+import * as fs from 'fs'
 
 
 @Injectable()
 export class ScrapperService {
     async getDataViaPuppeteer() {
-        const URL = 'https://bkdelivery.co.id/menus/whopper-wednesday/'
+        const URL = 'https://bkdelivery.co.id/menus/cheese-burger-favorit/'
         const browser = await puppeteer.launch({
             headless: false
         });
@@ -60,6 +61,12 @@ export class ScrapperService {
         console.log(
             'Data via puppeteer : ', results
         )
+
+        // save to json
+        fs.writeFile('menus.json', JSON.stringify(results), (err) => {
+          if (err) throw err
+          console.log('file saved')
+        })
 
         await browser.close()
         return results
