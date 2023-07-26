@@ -5,7 +5,7 @@ import * as puppeteer from 'puppeteer';
 @Injectable()
 export class ScrapperService {
     async getDataViaPuppeteer() {
-        const URL = 'https://gofood.co.id/en/bandung/restaurant/nasi-goreng-mas-lim-permata-9e430b79-c459-4f09-998c-53dbc8f0e7da'
+        const URL = 'https://gofood.co.id/en/jakarta/restaurant/rawon-sempol-jalan-merdeka-b447945e-aba3-4cd3-9523-6d4b4fdaf6df'
         const browser = await puppeteer.launch({
             headless: false
         });
@@ -14,7 +14,7 @@ export class ScrapperService {
             waitUntil: 'networkidle2'
         });
 
-        await page.evaluate(() => {
+        const results = await page.evaluate(() => {
             // Get layout and count menu
             const menuData = []
             const layout = document.querySelector('#section--1 > div')
@@ -24,22 +24,29 @@ export class ScrapperService {
             if(layout){
                 for(let i=1; i<=menuCount; i++) {
                     const menu = layout.querySelector(`div:nth-child(${i})`)
+
+                    // Get Image Link
+                    const image = menu.textContent
+                    const regex = /<img[^>]*src="([^"]+)"/i;
+                    const match = image.match(regex)
+
                     if (menu) {
                         // Extract data from menu element and save it to the 'data' array
                         const title = menu.querySelector('h3')?.textContent || '';
-                        const ingredients = menu.querySelector('p')?.textContent || '';
+                        const description = menu.querySelector('p')?.textContent || '';
                         const priceElements = menu.querySelectorAll('span');
-                        const price = priceElements[0]?.textContent || '';
-                        const promo = priceElements[1]?.textContent || '';
-                        const imageUrl = menu.querySelector('img')?.getAttribute('src') || '';
-                        
+                        const promo = priceElements[0]?.textContent || '';
+                        const price = priceElements[1]?.textContent || '';
+                        // const imageUrl = menu.querySelector('img')?.getAttribute('src') || '';
+                        const imageUrl = match ? match[1] : null;
+
                         // push
                         menuData.push({
                             id: i.toString(),
                             title: title,
-                            ingredients: ingredients,
-                            price: price,
+                            description: description,
                             promo: promo,
+                            price: price,
                             img: imageUrl,
                         })
                     } else {
@@ -47,7 +54,16 @@ export class ScrapperService {
                     }
                 }
             }
+
+            return menuData
+
         })
+        console.log(
+            'Data via puppeteer : ', results
+        )
+
+        await browser.close()
+        return results
 
         // return 'my scrapper service is working 🚀';
 
