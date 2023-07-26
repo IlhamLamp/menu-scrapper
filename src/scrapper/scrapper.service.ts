@@ -5,7 +5,7 @@ import * as puppeteer from 'puppeteer';
 @Injectable()
 export class ScrapperService {
     async getDataViaPuppeteer() {
-        const URL = 'https://gofood.co.id/en/jakarta/restaurant/rawon-sempol-jalan-merdeka-b447945e-aba3-4cd3-9523-6d4b4fdaf6df'
+        const URL = 'https://bkdelivery.co.id/menus/whopper-wednesday/'
         const browser = await puppeteer.launch({
             headless: false
         });
@@ -16,47 +16,46 @@ export class ScrapperService {
 
         const results = await page.evaluate(() => {
             // Get layout and count menu
-            const menuData = []
-            const layout = document.querySelector('#section--1 > div')
-            const menuCount = layout.childElementCount
-
-            // 
-            if(layout){
-                for(let i=1; i<=menuCount; i++) {
-                    const menu = layout.querySelector(`div:nth-child(${i})`)
-
-                    // Get Image Link
-                    const image = menu.textContent
-                    const regex = /<img[^>]*src="([^"]+)"/i;
-                    const match = image.match(regex)
-
-                    if (menu) {
-                        // Extract data from menu element and save it to the 'data' array
-                        const title = menu.querySelector('h3')?.textContent || '';
-                        const description = menu.querySelector('p')?.textContent || '';
-                        const priceElements = menu.querySelectorAll('span');
-                        const promo = priceElements[0]?.textContent || '';
-                        const price = priceElements[1]?.textContent || '';
-                        // const imageUrl = menu.querySelector('img')?.getAttribute('src') || '';
-                        const imageUrl = match ? match[1] : null;
-
-                        // push
-                        menuData.push({
-                            id: i.toString(),
-                            title: title,
-                            description: description,
-                            promo: promo,
-                            price: price,
-                            img: imageUrl,
-                        })
-                    } else {
-                        console.log(`Menu (${i}) tidak ditemukan`)
-                    }
-                }
-            }
-
-            return menuData
-
+            const layout = document.querySelector('body > div.content-block > div > div.item-lists > div.columns')
+            // const menuCount = layout.childElementCount
+            
+            if (layout) {
+                const menuElements = layout.querySelectorAll('div.two-column');
+                const menuData = [];
+                let idCounter = 1;
+              
+                menuElements.forEach((div) => {
+                  const menu = div.querySelector('a');
+              
+                  // cek 
+                  if (menu) {
+                    const link = menu.getAttribute('href');
+                    const title = div.querySelector('h4')?.textContent || '';
+                    const promo = div.querySelector('.price')?.textContent || '';
+                    const price = div.querySelector('.original')?.textContent || promo;
+                    const imageUrl = div.querySelector('img')?.getAttribute('src') || '';
+              
+                    // Push data dengan id yang telah dihitung sebelumnya
+                    menuData.push({
+                      id: idCounter.toString(),
+                      link: link,
+                      title: title,
+                      promo: promo,
+                      price: price,
+                      img: imageUrl,
+                    });
+              
+                    // Tambahkan counter id untuk menu selanjutnya
+                    idCounter++;
+                  }
+                });
+                
+                console.log('Data via puppeteer : ', menuData);
+                return menuData;
+              } else {
+                console.log('Layout tidak ditemukan');
+                return [];
+              }
         })
         console.log(
             'Data via puppeteer : ', results
