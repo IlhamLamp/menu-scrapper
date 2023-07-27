@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ScrapperController } from './scrapper.controller';
+import { MenuController } from './menu.controller';
 import { ScrapperService } from './scrapper.service';
 
 @Module({
-  controllers: [ScrapperController],
+  controllers: [MenuController],
   providers: [ScrapperService]
 })
-export class ScrapperModule {}
+export class MenuModule {}

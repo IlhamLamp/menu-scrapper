@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
-import * as fs from 'fs'
+// import * as fs from 'fs'
 
 
 @Injectable()
 export class ScrapperService {
-    async getDataViaPuppeteer() {
-        const URL = 'https://bkdelivery.co.id/menus/cheese-burger-favorit/'
+
+    async getMenuByCategories(link: string) {
+        const URL = `https://bkdelivery.co.id${link}`
         const browser = await puppeteer.launch({
             headless: false
         });
@@ -18,7 +19,6 @@ export class ScrapperService {
         const results = await page.evaluate(() => {
             // Get layout and count menu
             const layout = document.querySelector('body > div.content-block > div > div.item-lists > div.columns')
-            // const menuCount = layout.childElementCount
             
             if (layout) {
                 const menuElements = layout.querySelectorAll('div.two-column');
@@ -36,7 +36,7 @@ export class ScrapperService {
                     const price = div.querySelector('.original')?.textContent || promo;
                     const imageUrl = div.querySelector('img')?.getAttribute('src') || '';
               
-                    // Push data dengan id yang telah dihitung sebelumnya
+                    // Push data
                     menuData.push({
                       id: idCounter.toString(),
                       link: link,
@@ -46,7 +46,6 @@ export class ScrapperService {
                       img: imageUrl,
                     });
               
-                    // Tambahkan counter id untuk menu selanjutnya
                     idCounter++;
                   }
                 });
@@ -63,15 +62,65 @@ export class ScrapperService {
         )
 
         // save to json
-        fs.writeFile('menus.json', JSON.stringify(results), (err) => {
-          if (err) throw err
-          console.log('file saved')
-        })
+        // fs.writeFile('menus.json', JSON.stringify(results), (err) => {
+        //   if (err) throw err
+        //   console.log('file saved')
+        // })
 
         await browser.close()
         return results
-
-        // return 'my scrapper service is working 🚀';
-
     }
+
+    async getAllCategory() {
+        const URL = 'https://bkdelivery.co.id/menus/'
+        const browser = await puppeteer.launch({
+            headless: false
+        })
+
+        const page = await browser.newPage()
+        await page.goto(URL, {
+            waitUntil: 'networkidle2'
+        })
+
+        const results = await page.evaluate(() => {
+            // get layout
+            const layout = document.querySelector('body > div.content-block > div > div.item-categories > div > div')
+
+            if (layout) {
+                const categories = layout.querySelectorAll('div.categories-box')
+                const categoriesData = [];
+                let i = 1;
+
+                categories.forEach((div) => {
+                    const c = div.querySelector('a');
+                    // check
+                    if (c) {
+                        const link = c.getAttribute('href');
+                        const rawTitle = c.querySelector('h3')?.textContent || '';
+                        const title = rawTitle.trim()
+                        // push data
+                        categoriesData.push({
+                            id: i.toString(),
+                            link: link,
+                            title: title,
+                        });
+                        i++;
+                    }
+                });
+                console.log('Cat data: ', categoriesData);
+                return categoriesData;
+            } else {
+                console.log('Layout tidak ditemukan!')
+                return []
+            }
+        })
+
+        console.log(
+            'Data via puppeteer : ', results
+        )
+
+        await browser.close()
+        return results
+    }
+
 }
