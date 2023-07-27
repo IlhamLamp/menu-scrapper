@@ -41,3 +41,40 @@ Example Response:
   },
   // Other data
 ]
+```
+
+### GET /menus/:categoryId
+
+This endpoint will fetch the scraped data from the website and return it in JSON format.
+
+Example Response:
+
+```json
+[
+  {
+    "id": "1",
+    "link": "https://bkdelivery.co.id/products/appexc-bbqbfrsh/6452/",
+    "title": "App Exc BBQ Beef Rasher",
+    "promo": "Rp. 23,182",
+    "price": "35,909",
+    "img": "https://media-order.bkdelivery.co.id/thumb/product_photo/2023/3/20/98mmiliweaesnsyqgrqz6m_product_list.jpg"
+  },
+  {
+    "id": "2",
+    "link": "https://bkdelivery.co.id/products/8-pcs-ayam/7236/",
+    "title": "8 pcs Ayam",
+    "promo": "Rp. 100,000",
+    "price": "145,455",
+    "img": "https://media-order.bkdelivery.co.id/thumb/product_photo/2023/3/20/trqkoqzxm32tkxjvpsw2he_product_list.jpg"
+  },
+  // Other data
+]
+```
+
+## Contribution
+
+You can contribute to this project by submitting pull requests for bug fixes or additional features.
+
+## License
+
+This project is licensed under the [MIT licensed](LICENSE).
