@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ScrapperService } from './scrapper.service';
 
-@Controller('menu')
+@Controller('menus')
 export class MenuController {
     constructor (
         private readonly scrapperService: ScrapperService
