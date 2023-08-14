@@ -9,7 +9,7 @@ export class ScrapperService {
     async getMenuByCategories(link: string) {
         const URL = `https://bkdelivery.co.id${link}`
         const browser = await puppeteer.launch({
-            headless: false
+            headless: true
         });
         const page = await browser.newPage();
         await page.goto(URL, {
@@ -74,7 +74,7 @@ export class ScrapperService {
     async getAllCategory() {
         const URL = 'https://bkdelivery.co.id/menus/'
         const browser = await puppeteer.launch({
-            headless: false
+            headless: true
         })
 
         const page = await browser.newPage()
